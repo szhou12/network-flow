@@ -1,4 +1,3 @@
-
 from datetime import datetime
 import pandas as pd
 import networkx as nx
@@ -13,6 +12,7 @@ pipeline_cost_df = pd.read_csv(input_dir + "pipeline cost.csv")
 connection_df = pd.read_csv(input_dir + "province connection.csv")
 
 # 构建图
+# directed graph
 G = nx.DiGraph()
 for _, row in supply_demand_df.iterrows():
     G.add_node(row['省份编号'], demand=-row['供需量（万吨）'])
