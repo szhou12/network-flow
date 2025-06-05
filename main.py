@@ -5,11 +5,12 @@ from datetime import datetime
 
 from ortools_solver import ortools_solver
 from network_design_solver import solve_design_network
-from lp_solver import FlowSolver, Pipe, construct_graph
+from lp_solver import FlowSolver, Pipe, construct_graph, Nodes, Edges, PipeCost
 
 input_dir = "data/"
 output_dir = "results/"
 
+# deprecated
 def laod_data():
     supply_demand_df = pd.read_csv("data/mismatch by province.csv")
     balance = supply_demand_df['供需量（万吨）'].tolist()
@@ -83,18 +84,74 @@ def laod_data():
 
 
 def main():
-    supply_demand_df = pd.read_csv(input_dir + "mismatch by province.csv")
-    connection_df = pd.read_csv(input_dir + "province connection.csv")
-    pipeline_cost_df = pd.read_csv(input_dir + "pipeline cost.csv")
 
-    # 构建图
-    G = construct_graph(
-        nodes_df=supply_demand_df,
-        # edges_df=connection_df
+    nodes_id_colname = 'fid'
+    nodes_loc_colname = '地名'
+    nodes_balance_colname = '供需差异'
+
+    edges_from_colname = '起点ID'
+    edges_to_colname = '终点ID'
+    edges_dist_colname = 'length_m'
+
+    pipe_cost_flow_colname = '流量范围（万吨）'
+    pipe_cost_cost_colname = '单位成本（万元/km）'
+
+    # nodes data file is ok
+    nodes = Nodes(
+        file_path=input_dir + "0529区域供需差异结果_输入py.csv", 
+        id_colname=nodes_id_colname, 
+        loc_colname=nodes_loc_colname,
+        balance_colname=nodes_balance_colname
     )
 
+    nodes.convert_column_types({
+        nodes_id_colname: int,
+        # nodes_loc_colname: str,
+        # nodes_balance_colname: float
+    })
+
+    edges = Edges(
+        file_path=input_dir + "筛选_连线及距离_1000.csv", 
+        from_colname=edges_from_colname, 
+        to_colname=edges_to_colname, 
+        dist_colname=edges_dist_colname, 
+        is_dist_km=False
+    )
+
+    edges.convert_column_types({
+        edges_from_colname: int,
+        edges_to_colname: int,
+        # edges_dist_colname: int
+    })
+
+
+
+    pipe_cost = PipeCost(
+        file_path=input_dir + "pipeline cost.csv", 
+        flow_colname=pipe_cost_flow_colname, 
+        cost_colname=pipe_cost_cost_colname
+    )
+
+    # check if there are duplicate edges
+    dups = edges.find_duplicates()
+    if not dups.empty:
+        dup_filename = f'duplicate_edges_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'
+        dups.to_csv(output_dir + dup_filename, index=False)
+        print(f"Found duplicate edges. Saved to {dup_filename}")
+
+    # 构建图
+    try:
+        G = construct_graph(
+            nodes=nodes,
+            edges=edges
+        )
+    except ValueError as e:
+        print(f"Error: {e}")
+        print("Please check the input data and connections.")
+        exit(1)
+
     # pipe cost
-    pipe = Pipe.from_dataframe(pipeline_cost_df)
+    pipe = Pipe.from_data(pipe_cost)
 
     print("building and solving...")
 
