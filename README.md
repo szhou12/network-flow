@@ -4,7 +4,7 @@ conda create --name network-flow python=3.12
 
 pip install ortools
 pip install pulp
- pip install networkx
+pip install networkx
 ```
 
 Hoffman Circulation Theorem (cut condition)

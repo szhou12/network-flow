@@ -160,8 +160,11 @@ def main():
     solver.build_model()
     result = solver.solve()
 
+    # TODO: add coord_mapping dataframe
+    coord_mapping = None
+
     if result['status'] == 'Optimal':
-        result_df = solver.get_result_df()
+        result_df = solver.get_result_df(coord_mapping)
         csv_filename = f'network_flow_results_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'
         result_df.to_csv("results/"+csv_filename, index=False)
     else:

@@ -365,7 +365,7 @@ class FlowSolver:
         }
         return self._solution
     
-    def get_result_df(self) -> pd.DataFrame:
+    def get_result_df(self, coord_mapping: pd.DataFrame = None) -> pd.DataFrame:
         """
         Generate a DataFrame with the solution results.
         
@@ -403,6 +403,21 @@ class FlowSolver:
         # Ensure node ID columns are integers
         df["起点"] = df["起点"].astype(int)
         df["终点"] = df["终点"].astype(int)
+
+        if coord_mapping is not None:
+            # Merge source geo-coordinates
+            df = df.merge(coord_mapping.rename(columns={
+                'id': '起点',
+                'x': '起点_x',
+                'y': '起点_y'
+            }), on='起点', how='left')
+            # Merge target geo-coordinates
+            df = df.merge(coord_mapping.rename(columns={
+                'id': '终点',
+                'x': '终点_x',
+                'y': '终点_y'
+            }), on='终点', how='left')
+            
         return df
     
     def save_result(self, filename: str) -> None:
