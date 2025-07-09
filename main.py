@@ -161,7 +161,7 @@ def main():
     result = solver.solve()
 
     # TODO: add coord_mapping dataframe
-    coord_mapping = None
+    coord_mapping = pd.read_csv(input_dir + "区域供需差异及坐标.csv", usecols=['fid', 'X坐标', 'Y坐标'])
 
     if result['status'] == 'Optimal':
         result_df = solver.get_result_df(coord_mapping)

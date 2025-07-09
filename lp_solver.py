@@ -407,15 +407,15 @@ class FlowSolver:
         if coord_mapping is not None:
             # Merge source geo-coordinates
             df = df.merge(coord_mapping.rename(columns={
-                'id': '起点',
-                'x': '起点_x',
-                'y': '起点_y'
+                'fid': '起点',
+                'X坐标': '起点_x',
+                'Y坐标': '起点_y'
             }), on='起点', how='left')
             # Merge target geo-coordinates
             df = df.merge(coord_mapping.rename(columns={
-                'id': '终点',
-                'x': '终点_x',
-                'y': '终点_y'
+                'fid': '终点',
+                'X坐标': '终点_x',
+                'Y坐标': '终点_y'
             }), on='终点', how='left')
             
         return df
