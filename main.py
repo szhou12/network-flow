@@ -160,7 +160,7 @@ def main():
     solver.build_model()
     result = solver.solve()
 
-    # TODO: add coord_mapping dataframe
+    # geo-spatial coordinates
     coord_mapping = pd.read_csv(input_dir + "区域供需差异及坐标.csv", usecols=['fid', 'X坐标', 'Y坐标'])
 
     if result['status'] == 'Optimal':
